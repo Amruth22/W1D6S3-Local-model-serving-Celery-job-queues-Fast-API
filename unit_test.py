@@ -3,14 +3,19 @@ import os
 import time
 import requests
 import json
-from threading import Thread
-import subprocess
-import signal
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# FastAPI test client
-from fastapi.testclient import TestClient
-from api.app import app
+# Configuration for live server testing
+BASE_URL = "http://localhost:8080"
+TIMEOUT = 30  # seconds
+
+def check_server_running():
+    """Check if the server is running"""
+    try:
+        response = requests.get(f"{BASE_URL}/", timeout=5)
+        return response.status_code == 200
+    except:
+        return False
 
 def test_health_endpoint():
     """Test the health endpoint"""
@@ -18,17 +23,20 @@ def test_health_endpoint():
     print("-" * 30)
     
     try:
-        with TestClient(app) as client:
-            response = client.get("/system/health")
-            assert response.status_code == 200
-            data = response.json()
-            assert "status" in data
-            assert "version" in data
-            assert "components" in data
-            print(f"[PASS] Health status: {data['status']}")
-            print(f"[PASS] API version: {data['version']}")
-            print("[PASS] Health endpoint test passed\n")
-            return True
+        if not check_server_running():
+            print("[FAIL] Server is not running. Please start with: python main.py")
+            return False
+            
+        response = requests.get(f"{BASE_URL}/system/health", timeout=TIMEOUT)
+        assert response.status_code == 200
+        data = response.json()
+        assert "status" in data
+        assert "version" in data
+        assert "components" in data
+        print(f"[PASS] Health status: {data['status']}")
+        print(f"[PASS] API version: {data['version']}")
+        print("[PASS] Health endpoint test passed\n")
+        return True
     except Exception as e:
         print(f"[FAIL] Health endpoint test failed: {e}\n")
         return False
@@ -39,18 +47,17 @@ def test_system_info_endpoint():
     print("-" * 30)
     
     try:
-        with TestClient(app) as client:
-            response = client.get("/system/info")
-            assert response.status_code == 200
-            data = response.json()
-            assert "api" in data
-            assert "models" in data
-            assert "configuration" in data
-            print(f"[PASS] API title: {data['api']['title']}")
-            print(f"[PASS] LLM model: {data['models']['llm_model']}")
-            print(f"[PASS] Embedding model: {data['models']['embedding_model']}")
-            print("[PASS] System info endpoint test passed\n")
-            return True
+        response = requests.get(f"{BASE_URL}/system/info", timeout=TIMEOUT)
+        assert response.status_code == 200
+        data = response.json()
+        assert "api" in data
+        assert "models" in data
+        assert "configuration" in data
+        print(f"[PASS] API title: {data['api']['title']}")
+        print(f"[PASS] LLM model: {data['models']['llm_model']}")
+        print(f"[PASS] Embedding model: {data['models']['embedding_model']}")
+        print("[PASS] System info endpoint test passed\n")
+        return True
     except Exception as e:
         print(f"[FAIL] System info endpoint test failed: {e}\n")
         return False
@@ -61,21 +68,21 @@ def test_document_processing_sync():
     print("-" * 30)
     
     try:
-        with TestClient(app) as client:
-            # Test document processing
-            response = client.post("/documents/process", json={
-                "clear_existing": True,
-                "async_processing": False
-            })
-            assert response.status_code == 200
-            data = response.json()
-            assert "status" in data
-            assert "documents_processed" in data
-            assert "message" in data
-            print(f"[PASS] Processing status: {data['status']}")
-            print(f"[PASS] Documents processed: {data['documents_processed']}")
-            print("[PASS] Document processing (sync) test passed\n")
-            return True
+        response = requests.post(f"{BASE_URL}/documents/process", 
+                               json={
+                                   "clear_existing": True,
+                                   "async_processing": False
+                               }, 
+                               timeout=TIMEOUT)
+        assert response.status_code == 200
+        data = response.json()
+        assert "status" in data
+        assert "documents_processed" in data
+        assert "message" in data
+        print(f"[PASS] Processing status: {data['status']}")
+        print(f"[PASS] Documents processed: {data['documents_processed']}")
+        print("[PASS] Document processing (sync) test passed\n")
+        return True
     except Exception as e:
         print(f"[FAIL] Document processing (sync) test failed: {e}\n")
         return False
@@ -86,34 +93,37 @@ def test_document_processing_async():
     print("-" * 30)
     
     try:
-        with TestClient(app) as client:
-            # Submit async document processing
-            response = client.post("/documents/process", json={
-                "clear_existing": True,
-                "async_processing": True
-            })
-            assert response.status_code == 200
-            data = response.json()
-            assert "task_id" in data
-            assert "status" in data
-            task_id = data["task_id"]
-            print(f"[PASS] Async task submitted: {task_id}")
-            
-            # Check task status (wait a bit for processing)
-            max_attempts = 10
-            for attempt in range(max_attempts):
-                time.sleep(2)
-                status_response = client.get(f"/documents/task/{task_id}")
-                if status_response.status_code == 200:
-                    status_data = status_response.json()
-                    print(f"[INFO] Task status: {status_data.get('status', 'UNKNOWN')} - Progress: {status_data.get('progress', 0)}%")
-                    if status_data.get('status') in ['SUCCESS', 'FAILURE']:
-                        break
-                else:
-                    print(f"[INFO] Status check attempt {attempt + 1} failed")
-            
-            print("[PASS] Document processing (async) test passed\n")
-            return True
+        # Submit async document processing
+        response = requests.post(f"{BASE_URL}/documents/process", 
+                               json={
+                                   "clear_existing": True,
+                                   "async_processing": True
+                               }, 
+                               timeout=TIMEOUT)
+        assert response.status_code == 200
+        data = response.json()
+        assert "task_id" in data
+        assert "status" in data
+        task_id = data["task_id"]
+        print(f"[PASS] Async task submitted: {task_id}")
+        
+        # Check task status (wait a bit for processing)
+        max_attempts = 10
+        for attempt in range(max_attempts):
+            time.sleep(2)
+            status_response = requests.get(f"{BASE_URL}/documents/task/{task_id}", timeout=TIMEOUT)
+            if status_response.status_code == 200:
+                status_data = status_response.json()
+                print(f"[INFO] Task status: {status_data.get('status', 'UNKNOWN')} - Progress: {status_data.get('progress', 0)}%")
+                if status_data.get('status') in ['SUCCESS', 'FAILURE']:
+                    if status_data.get('result'):
+                        print(f"[PASS] Task completed: {status_data['result'].get('message', 'No message')}")
+                    break
+            else:
+                print(f"[INFO] Status check attempt {attempt + 1} failed")
+        
+        print("[PASS] Document processing (async) test passed\n")
+        return True
     except Exception as e:
         print(f"[FAIL] Document processing (async) test failed: {e}\n")
         return False
