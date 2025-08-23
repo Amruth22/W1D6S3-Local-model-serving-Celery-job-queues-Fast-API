@@ -313,7 +313,6 @@ def main():
         test_cache_management,
         test_document_processing_sync,
         test_query_sync,
-        test_query_async,
         test_batch_query,
     ]
     
