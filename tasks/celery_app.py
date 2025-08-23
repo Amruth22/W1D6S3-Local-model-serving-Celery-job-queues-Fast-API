@@ -21,8 +21,23 @@ except ImportError:
     DATA_DIR = PROJECT_ROOT / "data"
     CELERY_RESULTS_DIR = DATA_DIR / "celery_results"
     
-    CELERY_BROKER_URL = f"sqlite:///{DATA_DIR}/celery.db"
+    CELERY_BROKER_URL = f"filesystem://"
     CELERY_RESULT_BACKEND = f"file://{CELERY_RESULTS_DIR}"
+    
+    # Create broker transport options for filesystem
+    CELERY_BROKER_TRANSPORT_OPTIONS = {
+        'data_folder_in': str(DATA_DIR / 'celery_broker' / 'out'),
+        'data_folder_out': str(DATA_DIR / 'celery_broker' / 'out'),
+        'data_folder_processed': str(DATA_DIR / 'celery_broker' / 'processed'),
+    }
+    
+    # Create broker directories
+    broker_dirs = [
+        DATA_DIR / 'celery_broker' / 'out',
+        DATA_DIR / 'celery_broker' / 'processed'
+    ]
+    for broker_dir in broker_dirs:
+        os.makedirs(broker_dir, exist_ok=True)
     CELERY_TASK_SERIALIZER = "json"
     CELERY_RESULT_SERIALIZER = "json"
     CELERY_ACCEPT_CONTENT = ["json"]
