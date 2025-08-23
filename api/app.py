@@ -2,11 +2,25 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from api.routers import query, documents, system
-from config.settings import API_TITLE, API_DESCRIPTION, API_VERSION
 import os
+from pathlib import Path
 
-# Create directories if they don't exist
-from config.settings import DATA_DIR, DOCUMENTS_DIR, CACHE_DIR, EMBEDDINGS_DIR, CELERY_RESULTS_DIR
+# Try to import settings, use fallback if not available
+try:
+    from config.settings import API_TITLE, API_DESCRIPTION, API_VERSION
+    from config.settings import DATA_DIR, DOCUMENTS_DIR, CACHE_DIR, EMBEDDINGS_DIR, CELERY_RESULTS_DIR
+except ImportError:
+    # Fallback configuration
+    API_TITLE = "Local RAG API"
+    API_DESCRIPTION = "Local RAG API with Celery job queues"
+    API_VERSION = "1.0.0"
+    
+    PROJECT_ROOT = Path(__file__).parent.parent
+    DATA_DIR = PROJECT_ROOT / "data"
+    DOCUMENTS_DIR = DATA_DIR / "documents"
+    CACHE_DIR = DATA_DIR / "cache"
+    EMBEDDINGS_DIR = PROJECT_ROOT / "embeddings"
+    CELERY_RESULTS_DIR = DATA_DIR / "celery_results"
 
 for directory in [DATA_DIR, DOCUMENTS_DIR, CACHE_DIR, EMBEDDINGS_DIR, CELERY_RESULTS_DIR]:
     os.makedirs(directory, exist_ok=True)
@@ -110,7 +124,12 @@ async def shutdown_event():
 
 if __name__ == "__main__":
     import uvicorn
-    from config.settings import API_HOST, API_PORT
+    
+    try:
+        from config.settings import API_HOST, API_PORT
+    except ImportError:
+        API_HOST = "0.0.0.0"
+        API_PORT = 8080
     
     uvicorn.run(
         "api.app:app",
