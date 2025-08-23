@@ -2,8 +2,18 @@ import json
 import os
 import time
 import hashlib
-from config.settings import CACHE_DIR, CACHE_TTL, CACHE_MAX_SIZE
 import pickle
+from pathlib import Path
+
+# Try to import settings, use fallback if not available
+try:
+    from config.settings import CACHE_DIR, CACHE_TTL, CACHE_MAX_SIZE
+except ImportError:
+    # Fallback configuration
+    PROJECT_ROOT = Path(__file__).parent.parent
+    CACHE_DIR = PROJECT_ROOT / "data" / "cache"
+    CACHE_TTL = 24 * 60 * 60  # 24 hours
+    CACHE_MAX_SIZE = 1000
 
 class CacheManager:
     def __init__(self):
