@@ -32,7 +32,13 @@ def start_celery_worker():
 def start_fastapi_server():
     """Start FastAPI server"""
     import uvicorn
-    from config.settings import API_HOST, API_PORT
+    
+    try:
+        from config.settings import API_HOST, API_PORT
+    except ImportError:
+        API_HOST = "0.0.0.0"
+        API_PORT = 8080
+        print("⚠️  Using fallback API configuration")
     
     print(f"Starting FastAPI server on {API_HOST}:{API_PORT}...")
     uvicorn.run(
