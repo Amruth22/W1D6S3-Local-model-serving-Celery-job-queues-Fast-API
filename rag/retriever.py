@@ -1,7 +1,12 @@
 import numpy as np
 from embeddings.model import EmbeddingModel
 from embeddings.storage import FaissStorage
-from config.settings import TOP_K_RESULTS
+
+# Try to import settings, use fallback if not available
+try:
+    from config.settings import TOP_K_RESULTS
+except ImportError:
+    TOP_K_RESULTS = 5
 
 class Retriever:
     def __init__(self):
