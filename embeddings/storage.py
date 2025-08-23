@@ -2,8 +2,18 @@ import faiss
 import numpy as np
 import json
 import os
-from config.settings import FAISS_INDEX_FILE, FAISS_METADATA_FILE, EMBEDDINGS_DIR
 import pickle
+from pathlib import Path
+
+# Try to import settings, use fallback if not available
+try:
+    from config.settings import FAISS_INDEX_FILE, FAISS_METADATA_FILE, EMBEDDINGS_DIR
+except ImportError:
+    # Fallback configuration
+    PROJECT_ROOT = Path(__file__).parent.parent
+    EMBEDDINGS_DIR = PROJECT_ROOT / "embeddings"
+    FAISS_INDEX_FILE = EMBEDDINGS_DIR / "faiss_index.bin"
+    FAISS_METADATA_FILE = EMBEDDINGS_DIR / "metadata.json"
 
 class FaissStorage:
     def __init__(self, dimension):
