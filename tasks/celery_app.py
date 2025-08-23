@@ -15,6 +15,11 @@ try:
         CELERY_RESULTS_DIR,
         TASK_TIMEOUT
     )
+    # Override with memory broker if SQLite is configured (not supported)
+    if 'sqlite' in CELERY_BROKER_URL.lower():
+        CELERY_BROKER_URL = "memory://"
+        CELERY_RESULT_BACKEND = "cache+memory://"
+        print("⚠️  SQLite broker not supported, using memory broker")
 except ImportError:
     # Fallback configuration
     PROJECT_ROOT = Path(__file__).parent.parent
