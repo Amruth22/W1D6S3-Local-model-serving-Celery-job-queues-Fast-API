@@ -1,16 +1,35 @@
 import os
 from celery import Celery
-from config.settings import (
-    CELERY_BROKER_URL, 
-    CELERY_RESULT_BACKEND,
-    CELERY_TASK_SERIALIZER,
-    CELERY_RESULT_SERIALIZER,
-    CELERY_ACCEPT_CONTENT,
-    CELERY_TIMEZONE,
-    CELERY_ENABLE_UTC,
-    CELERY_RESULTS_DIR,
-    TASK_TIMEOUT
-)
+from pathlib import Path
+
+# Try to import settings, use fallback if not available
+try:
+    from config.settings import (
+        CELERY_BROKER_URL, 
+        CELERY_RESULT_BACKEND,
+        CELERY_TASK_SERIALIZER,
+        CELERY_RESULT_SERIALIZER,
+        CELERY_ACCEPT_CONTENT,
+        CELERY_TIMEZONE,
+        CELERY_ENABLE_UTC,
+        CELERY_RESULTS_DIR,
+        TASK_TIMEOUT
+    )
+except ImportError:
+    # Fallback configuration
+    PROJECT_ROOT = Path(__file__).parent.parent
+    DATA_DIR = PROJECT_ROOT / "data"
+    CELERY_RESULTS_DIR = DATA_DIR / "celery_results"
+    
+    CELERY_BROKER_URL = f"sqlite:///{DATA_DIR}/celery.db"
+    CELERY_RESULT_BACKEND = f"file://{CELERY_RESULTS_DIR}"
+    CELERY_TASK_SERIALIZER = "json"
+    CELERY_RESULT_SERIALIZER = "json"
+    CELERY_ACCEPT_CONTENT = ["json"]
+    CELERY_TIMEZONE = "UTC"
+    CELERY_ENABLE_UTC = True
+    TASK_TIMEOUT = 300
+    print("⚠️  Using fallback Celery configuration")
 
 # Create celery results directory
 os.makedirs(CELERY_RESULTS_DIR, exist_ok=True)
