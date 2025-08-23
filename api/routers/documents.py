@@ -4,6 +4,7 @@ from api.models.responses import DocumentProcessResponse, AsyncTaskResponse, Tas
 from tasks.document_tasks import process_documents_async, clear_index_async, get_document_stats_async
 from tasks.celery_app import celery_app
 from rag.engine import RAGEngine
+from typing import Union
 
 router = APIRouter(prefix="/documents", tags=["Documents"])
 
@@ -17,7 +18,7 @@ def get_rag_engine():
         rag_engine = RAGEngine()
     return rag_engine
 
-@router.post("/process", response_model=DocumentProcessResponse | AsyncTaskResponse)
+@router.post("/process", response_model=Union[DocumentProcessResponse, AsyncTaskResponse])
 async def process_documents(request: DocumentProcessRequest):
     """
     Process documents from the data/documents/ directory.
