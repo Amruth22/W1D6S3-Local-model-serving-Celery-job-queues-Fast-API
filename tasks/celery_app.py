@@ -21,23 +21,9 @@ except ImportError:
     DATA_DIR = PROJECT_ROOT / "data"
     CELERY_RESULTS_DIR = DATA_DIR / "celery_results"
     
-    CELERY_BROKER_URL = f"filesystem://"
-    CELERY_RESULT_BACKEND = f"file://{CELERY_RESULTS_DIR}"
-    
-    # Create broker transport options for filesystem
-    CELERY_BROKER_TRANSPORT_OPTIONS = {
-        'data_folder_in': str(DATA_DIR / 'celery_broker' / 'out'),
-        'data_folder_out': str(DATA_DIR / 'celery_broker' / 'out'),
-        'data_folder_processed': str(DATA_DIR / 'celery_broker' / 'processed'),
-    }
-    
-    # Create broker directories
-    broker_dirs = [
-        DATA_DIR / 'celery_broker' / 'out',
-        DATA_DIR / 'celery_broker' / 'processed'
-    ]
-    for broker_dir in broker_dirs:
-        os.makedirs(broker_dir, exist_ok=True)
+    # Use memory broker for development (simple, no external dependencies)
+    CELERY_BROKER_URL = "memory://"
+    CELERY_RESULT_BACKEND = "cache+memory://"
     CELERY_TASK_SERIALIZER = "json"
     CELERY_RESULT_SERIALIZER = "json"
     CELERY_ACCEPT_CONTENT = ["json"]
@@ -69,10 +55,6 @@ config_dict = {
     'task_ignore_result': False,
     'result_expires': 3600,  # Results expire after 1 hour
 }
-
-# Add broker transport options if using filesystem broker
-if 'CELERY_BROKER_TRANSPORT_OPTIONS' in globals():
-    config_dict['broker_transport_options'] = CELERY_BROKER_TRANSPORT_OPTIONS
 
 celery_app.conf.update(config_dict)
 
