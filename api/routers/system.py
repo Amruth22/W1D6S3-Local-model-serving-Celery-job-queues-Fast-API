@@ -1,10 +1,16 @@
 from fastapi import APIRouter, HTTPException
 from api.models.responses import HealthResponse, SystemStats
-from config.settings import API_VERSION, API_TITLE
 from rag.engine import RAGEngine
 from datetime import datetime
 import sys
 import os
+
+# Try to import settings, use fallback if not available
+try:
+    from config.settings import API_VERSION, API_TITLE
+except ImportError:
+    API_VERSION = "1.0.0"
+    API_TITLE = "Local RAG API"
 
 router = APIRouter(prefix="/system", tags=["System"])
 
