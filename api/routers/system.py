@@ -79,12 +79,25 @@ async def get_system_info():
     Get general system information.
     """
     try:
-        from config.settings import (
-            API_TITLE, API_VERSION, API_DESCRIPTION,
-            LLM_MODEL_ID, EMBEDDING_MODEL_ID,
-            CHUNK_SIZE, CHUNK_OVERLAP, TOP_K_RESULTS,
-            CACHE_TTL, CACHE_MAX_SIZE
-        )
+        try:
+            from config.settings import (
+                API_TITLE, API_VERSION, API_DESCRIPTION,
+                LLM_MODEL_ID, EMBEDDING_MODEL_ID,
+                CHUNK_SIZE, CHUNK_OVERLAP, TOP_K_RESULTS,
+                CACHE_TTL, CACHE_MAX_SIZE
+            )
+        except ImportError:
+            # Fallback values
+            API_TITLE = "Local RAG API"
+            API_VERSION = "1.0.0"
+            API_DESCRIPTION = "Local RAG API with Celery job queues"
+            LLM_MODEL_ID = "meta-llama/Llama-3.2-1B"
+            EMBEDDING_MODEL_ID = "all-MiniLM-L6-v2"
+            CHUNK_SIZE = 500
+            CHUNK_OVERLAP = 50
+            TOP_K_RESULTS = 5
+            CACHE_TTL = 24 * 60 * 60
+            CACHE_MAX_SIZE = 1000
         
         return {
             "api": {
