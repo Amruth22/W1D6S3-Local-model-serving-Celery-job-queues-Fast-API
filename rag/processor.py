@@ -1,6 +1,16 @@
 import os
-from config.settings import DOCUMENTS_DIR, CHUNK_SIZE, CHUNK_OVERLAP
 import re
+from pathlib import Path
+
+# Try to import settings, use fallback if not available
+try:
+    from config.settings import DOCUMENTS_DIR, CHUNK_SIZE, CHUNK_OVERLAP
+except ImportError:
+    # Fallback configuration
+    PROJECT_ROOT = Path(__file__).parent.parent
+    DOCUMENTS_DIR = PROJECT_ROOT / "data" / "documents"
+    CHUNK_SIZE = 500
+    CHUNK_OVERLAP = 50
 
 class DocumentProcessor:
     def __init__(self):
