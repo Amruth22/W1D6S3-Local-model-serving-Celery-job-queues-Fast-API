@@ -4,6 +4,7 @@ from api.models.responses import QueryResponse, AsyncTaskResponse, TaskStatusRes
 from tasks.query_tasks import process_query_async, batch_query_async
 from tasks.celery_app import celery_app
 from rag.engine import RAGEngine
+from typing import Union
 import time
 
 router = APIRouter(prefix="/query", tags=["Query"])
@@ -18,7 +19,7 @@ def get_rag_engine():
         rag_engine = RAGEngine()
     return rag_engine
 
-@router.post("/", response_model=QueryResponse | AsyncTaskResponse)
+@router.post("/", response_model=Union[QueryResponse, AsyncTaskResponse])
 async def process_query(request: QueryRequest):
     """
     Process a single query through the RAG system.
@@ -51,7 +52,7 @@ async def process_query(request: QueryRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing query: {str(e)}")
 
-@router.post("/batch", response_model=BatchQueryResponse | AsyncTaskResponse)
+@router.post("/batch", response_model=Union[BatchQueryResponse, AsyncTaskResponse])
 async def process_batch_queries(request: BatchQueryRequest):
     """
     Process multiple queries in batch.
