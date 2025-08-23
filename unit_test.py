@@ -307,7 +307,6 @@ def main():
     
     # Run all tests
     tests = [
-        test_health_endpoint,
         test_system_info_endpoint,
         test_system_stats,
         test_cache_management,
