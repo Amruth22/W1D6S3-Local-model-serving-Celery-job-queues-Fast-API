@@ -18,24 +18,62 @@ This is a FastAPI-based Retrieval-Augmented Generation (RAG) system with Celery 
 
 ## Installation
 
-1. Install requirements:
+### Quick Start
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd W1D6S3-Local-model-serving-Celery-job-queues-Fast-API
+
+# Install requirements
 pip install -r requirements.txt
+
+# Test installation
+python test_installation.py
+
+# Start the system
+python main.py
+```
+
+### Alternative Installation
+```bash
+# Using the startup script (Linux/Mac)
+chmod +x start.sh
+./start.sh
 ```
 
 ## Usage
 
-### Start the FastAPI Server
+### Start the System
 ```bash
+# Start both FastAPI server and Celery worker
 python main.py
+
+# Or start services separately
+python main.py api     # FastAPI server only
+python main.py worker  # Celery worker only
 ```
 
-The API will be available at `http://localhost:8080`
+### Access the API
+- **API Base URL**: `http://localhost:8080`
+- **Swagger UI**: `http://localhost:8080/docs`
+- **ReDoc**: `http://localhost:8080/redoc`
+- **Health Check**: `http://localhost:8080/system/health`
 
-### API Documentation
-Once the server is running, visit:
-- Swagger UI: `http://localhost:8080/docs`
-- ReDoc: `http://localhost:8080/redoc`
+### Quick Test
+```bash
+# Check system health
+curl http://localhost:8080/system/health
+
+# Process documents
+curl -X POST "http://localhost:8080/documents/process" \
+  -H "Content-Type: application/json" \
+  -d '{"clear_existing": true, "async_processing": false}'
+
+# Ask a question
+curl -X POST "http://localhost:8080/query/" \
+  -H "Content-Type: application/json" \
+  -d '{"question": "What is machine learning?", "async_processing": false}'
+```
 
 ## API Endpoints
 
