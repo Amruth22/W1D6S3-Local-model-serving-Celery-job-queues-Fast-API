@@ -288,8 +288,22 @@ def test_cache_management():
 
 def main():
     """Run all unit tests for the RAG system"""
-    print("Running RAG System Unit Tests")
+    print("Running RAG System Unit Tests (Live Server)")
     print("=" * 50)
+    
+    # Check if server is running
+    if not check_server_running():
+        print("❌ ERROR: Server is not running!")
+        print("")
+        print("Please start the server first:")
+        print("  1. Open a terminal and run: python main.py")
+        print("  2. Wait for the server to start (you'll see 'Services started successfully!')")
+        print("  3. Then run these tests in another terminal")
+        print("")
+        return False
+    
+    print(f"✅ Server is running at {BASE_URL}")
+    print("")
     
     # Run all tests
     tests = [
@@ -316,8 +330,10 @@ def main():
     
     if passed == total:
         print("🎉 All tests passed!")
+        print("✅ Your FastAPI + Celery RAG system is working perfectly!")
     else:
         print(f"❌ {total - passed} tests failed")
+        print("💡 Check the server logs for more details")
         
     return passed == total
 
