@@ -31,7 +31,15 @@ async def health_check():
             components["rag_engine"] = f"error: {str(e)}"
         
         # Check if directories exist
-        from config.settings import DATA_DIR, DOCUMENTS_DIR, CACHE_DIR, EMBEDDINGS_DIR
+        try:
+            from config.settings import DATA_DIR, DOCUMENTS_DIR, CACHE_DIR, EMBEDDINGS_DIR
+        except ImportError:
+            from pathlib import Path
+            PROJECT_ROOT = Path(__file__).parent.parent.parent
+            DATA_DIR = PROJECT_ROOT / "data"
+            DOCUMENTS_DIR = DATA_DIR / "documents"
+            CACHE_DIR = DATA_DIR / "cache"
+            EMBEDDINGS_DIR = PROJECT_ROOT / "embeddings"
         
         components["data_directory"] = "healthy" if os.path.exists(DATA_DIR) else "missing"
         components["documents_directory"] = "healthy" if os.path.exists(DOCUMENTS_DIR) else "missing"
