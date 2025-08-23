@@ -1,0 +1,62 @@
+AI Skill-Up Course Outline
+This course is designed to skill up students with no prior technical background and guide them
+through the latest advancements in AI technologies. By the end of this course, students will be
+job-ready in domains such as data science, machine learning, NLP, deep learning, and generative
+AI.
+
+1. Introduction to Programming with Python
+• Python Basics: Variables, Data Types, and Operators
+• Control Flow: if-else, loops
+• Functions and Modules
+• File Handling
+• Error Handling and Debugging
+• Object-Oriented Programming (OOP)
+
+2. Data Analysis and Visualization
+• Introduction to Pandas and NumPy
+• Data Cleaning and Preprocessing
+• Exploratory Data Analysis (EDA)
+• Data Visualization with Matplotlib and Seaborn
+• Working with Real Datasets
+
+3. Statistics and Mathematics for Data Science
+• Descriptive and Inferential Statistics
+• Probability and Distributions
+• Linear Algebra Basics
+• Calculus for Optimization
+• Hypothesis Testing and Confidence Intervals
+
+4. Introduction to Machine Learning
+• Supervised vs Unsupervised Learning
+• Linear and Logistic Regression
+• Decision Trees and Random Forest
+• KNN, SVM, Naive Bayes
+• Model Evaluation: Accuracy, Precision, Recall, F1 Score
+
+5. Deep Learning
+• Introduction to Neural Networks
+• Forward and Backward Propagation
+• Activation Functions, Loss Functions
+• Convolutional Neural Networks (CNNs)
+• Recurrent Neural Networks (RNNs), LSTM
+
+6. Natural Language Processing (NLP)
+• Text Preprocessing and Cleaning
+• Bag of Words, TF-IDF
+• Word Embeddings (Word2Vec, GloVe)
+• Sentiment Analysis
+• Named Entity Recognition (NER)
+
+7. Generative AI
+• Introduction to GenAI and Foundation Models
+• Transformers and Attention Mechanism
+• Large Language Models (LLMs)
+• Prompt Engineering
+• Building Chatbots and Applications with GenAI APIs
+
+8. Real-World Projects and Job Preparation
+• Mini Projects on Each Module
+• Capstone Project (End-to-End AI Project)
+• Portfolio Building and GitHub
+• Resume Preparation and Mock Interviews
+• Job Roles and Career Guidance in AI
