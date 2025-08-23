@@ -1,8 +1,13 @@
 import torch
 from sentence_transformers import SentenceTransformer
-from config.settings import EMBEDDING_MODEL_ID
 import numpy as np
 import os
+
+# Try to import settings, use fallback if not available
+try:
+    from config.settings import EMBEDDING_MODEL_ID
+except ImportError:
+    EMBEDDING_MODEL_ID = "all-MiniLM-L6-v2"
 
 class EmbeddingModel:
     def __init__(self):
