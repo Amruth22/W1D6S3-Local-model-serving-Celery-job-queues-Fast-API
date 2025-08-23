@@ -134,34 +134,37 @@ def test_query_sync():
     print("-" * 30)
     
     try:
-        with TestClient(app) as client:
-            # First ensure documents are processed
-            client.post("/documents/process", json={
-                "clear_existing": True,
-                "async_processing": False
-            })
-            
-            # Test synchronous query
-            response = client.post("/query/", json={
-                "question": "What is machine learning?",
-                "async_processing": False
-            })
-            
-            if response.status_code == 200:
-                data = response.json()
-                assert "answer" in data
-                assert "source" in data
-                assert "processing_time" in data
-                print(f"[PASS] Query processed successfully")
-                print(f"[PASS] Answer preview: {data['answer'][:100]}{'...' if len(data['answer']) > 100 else ''}")
-                print(f"[PASS] Processing time: {data['processing_time']:.2f}s")
-                print(f"[PASS] Source: {data['source']}")
-                print("[PASS] Query processing (sync) test passed\n")
-                return True
-            else:
-                print(f"[INFO] Query returned status {response.status_code} - may need model loading time")
-                print("[PASS] Query endpoint structure test passed\n")
-                return True
+        # First ensure documents are processed
+        requests.post(f"{BASE_URL}/documents/process", 
+                     json={
+                         "clear_existing": True,
+                         "async_processing": False
+                     }, 
+                     timeout=TIMEOUT)
+        
+        # Test synchronous query
+        response = requests.post(f"{BASE_URL}/query/", 
+                               json={
+                                   "question": "What is machine learning?",
+                                   "async_processing": False
+                               }, 
+                               timeout=TIMEOUT)
+        
+        if response.status_code == 200:
+            data = response.json()
+            assert "answer" in data
+            assert "source" in data
+            assert "processing_time" in data
+            print(f"[PASS] Query processed successfully")
+            print(f"[PASS] Answer preview: {data['answer'][:100]}{'...' if len(data['answer']) > 100 else ''}")
+            print(f"[PASS] Processing time: {data['processing_time']:.2f}s")
+            print(f"[PASS] Source: {data['source']}")
+            print("[PASS] Query processing (sync) test passed\n")
+            return True
+        else:
+            print(f"[INFO] Query returned status {response.status_code} - may need model loading time")
+            print("[PASS] Query endpoint structure test passed\n")
+            return True
     except Exception as e:
         print(f"[FAIL] Query processing (sync) test failed: {e}\n")
         return False
@@ -172,36 +175,37 @@ def test_query_async():
     print("-" * 30)
     
     try:
-        with TestClient(app) as client:
-            # Submit async query
-            response = client.post("/query/", json={
-                "question": "What topics are covered in the AI course?",
-                "async_processing": True
-            })
-            assert response.status_code == 200
-            data = response.json()
-            assert "task_id" in data
-            task_id = data["task_id"]
-            print(f"[PASS] Async query submitted: {task_id}")
-            
-            # Check task status
-            max_attempts = 10
-            for attempt in range(max_attempts):
-                time.sleep(2)
-                status_response = client.get(f"/query/{task_id}")
-                if status_response.status_code == 200:
-                    status_data = status_response.json()
-                    print(f"[INFO] Task status: {status_data.get('status', 'UNKNOWN')} - Progress: {status_data.get('progress', 0)}%")
-                    if status_data.get('status') in ['SUCCESS', 'FAILURE']:
-                        if status_data.get('result'):
-                            result = status_data['result']
-                            print(f"[PASS] Answer preview: {result.get('answer', 'No answer')[:100]}{'...' if len(result.get('answer', '')) > 100 else ''}")
-                        break
-                else:
-                    print(f"[INFO] Status check attempt {attempt + 1} failed")
-            
-            print("[PASS] Query processing (async) test passed\n")
-            return True
+        # Submit async query
+        response = requests.post(f"{BASE_URL}/query/", 
+                               json={
+                                   "question": "What topics are covered in the AI course?",
+                                   "async_processing": True
+                               }, 
+                               timeout=TIMEOUT)
+        assert response.status_code == 200
+        data = response.json()
+        assert "task_id" in data
+        task_id = data["task_id"]
+        print(f"[PASS] Async query submitted: {task_id}")
+        
+        # Check task status
+        max_attempts = 10
+        for attempt in range(max_attempts):
+            time.sleep(2)
+            status_response = requests.get(f"{BASE_URL}/query/{task_id}", timeout=TIMEOUT)
+            if status_response.status_code == 200:
+                status_data = status_response.json()
+                print(f"[INFO] Task status: {status_data.get('status', 'UNKNOWN')} - Progress: {status_data.get('progress', 0)}%")
+                if status_data.get('status') in ['SUCCESS', 'FAILURE']:
+                    if status_data.get('result'):
+                        result = status_data['result']
+                        print(f"[PASS] Answer preview: {result.get('answer', 'No answer')[:100]}{'...' if len(result.get('answer', '')) > 100 else ''}")
+                    break
+            else:
+                print(f"[INFO] Status check attempt {attempt + 1} failed")
+        
+        print("[PASS] Query processing (async) test passed\n")
+        return True
     except Exception as e:
         print(f"[FAIL] Query processing (async) test failed: {e}\n")
         return False
@@ -212,30 +216,31 @@ def test_batch_query():
     print("-" * 30)
     
     try:
-        with TestClient(app) as client:
-            # Submit batch query
-            response = client.post("/query/batch", json={
-                "questions": [
-                    "What is machine learning?",
-                    "What is deep learning?",
-                    "What is AI?"
-                ]
-            })
-            assert response.status_code == 200
-            data = response.json()
-            assert "task_id" in data
-            task_id = data["task_id"]
-            print(f"[PASS] Batch query submitted: {task_id}")
-            
-            # Check task status (briefly)
-            time.sleep(3)
-            status_response = client.get(f"/query/{task_id}")
-            if status_response.status_code == 200:
-                status_data = status_response.json()
-                print(f"[PASS] Task status: {status_data.get('status', 'UNKNOWN')}")
-            
-            print("[PASS] Batch query processing test passed\n")
-            return True
+        # Submit batch query
+        response = requests.post(f"{BASE_URL}/query/batch", 
+                               json={
+                                   "questions": [
+                                       "What is machine learning?",
+                                       "What is deep learning?",
+                                       "What is AI?"
+                                   ]
+                               }, 
+                               timeout=TIMEOUT)
+        assert response.status_code == 200
+        data = response.json()
+        assert "task_id" in data
+        task_id = data["task_id"]
+        print(f"[PASS] Batch query submitted: {task_id}")
+        
+        # Check task status (briefly)
+        time.sleep(3)
+        status_response = requests.get(f"{BASE_URL}/query/{task_id}", timeout=TIMEOUT)
+        if status_response.status_code == 200:
+            status_data = status_response.json()
+            print(f"[PASS] Task status: {status_data.get('status', 'UNKNOWN')}")
+        
+        print("[PASS] Batch query processing test passed\n")
+        return True
     except Exception as e:
         print(f"[FAIL] Batch query processing test failed: {e}\n")
         return False
@@ -246,20 +251,19 @@ def test_system_stats():
     print("-" * 30)
     
     try:
-        with TestClient(app) as client:
-            response = client.get("/system/stats")
-            assert response.status_code == 200
-            data = response.json()
-            assert "documents" in data
-            assert "index" in data
-            assert "cache" in data
-            assert "system_status" in data
-            
-            print(f"[PASS] System status: {data['system_status']}")
-            print(f"[PASS] Total documents: {data['documents']['total_documents']}")
-            print(f"[PASS] Cache items: {data['cache']['total_items']}")
-            print("[PASS] System statistics test passed\n")
-            return True
+        response = requests.get(f"{BASE_URL}/system/stats", timeout=TIMEOUT)
+        assert response.status_code == 200
+        data = response.json()
+        assert "documents" in data
+        assert "index" in data
+        assert "cache" in data
+        assert "system_status" in data
+        
+        print(f"[PASS] System status: {data['system_status']}")
+        print(f"[PASS] Total documents: {data['documents']['total_documents']}")
+        print(f"[PASS] Cache items: {data['cache']['total_items']}")
+        print("[PASS] System statistics test passed\n")
+        return True
     except Exception as e:
         print(f"[FAIL] System statistics test failed: {e}\n")
         return False
@@ -270,15 +274,14 @@ def test_cache_management():
     print("-" * 30)
     
     try:
-        with TestClient(app) as client:
-            # Clear cache
-            response = client.post("/system/cache/clear")
-            assert response.status_code == 200
-            data = response.json()
-            assert "message" in data
-            print(f"[PASS] Cache cleared: {data['message']}")
-            print("[PASS] Cache management test passed\n")
-            return True
+        # Clear cache
+        response = requests.post(f"{BASE_URL}/system/cache/clear", timeout=TIMEOUT)
+        assert response.status_code == 200
+        data = response.json()
+        assert "message" in data
+        print(f"[PASS] Cache cleared: {data['message']}")
+        print("[PASS] Cache management test passed\n")
+        return True
     except Exception as e:
         print(f"[FAIL] Cache management test failed: {e}\n")
         return False
