@@ -1,5 +1,12 @@
 from llama_cpp import Llama
-from config.settings import MAX_NEW_TOKENS, TEMPERATURE, TOP_P
+
+# Try to import settings, use fallback if not available
+try:
+    from config.settings import MAX_NEW_TOKENS, TEMPERATURE, TOP_P
+except ImportError:
+    MAX_NEW_TOKENS = 150
+    TEMPERATURE = 0.7
+    TOP_P = 0.95
 
 # Global variable for the model
 model = None
