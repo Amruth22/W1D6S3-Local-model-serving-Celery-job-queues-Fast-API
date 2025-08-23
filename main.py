@@ -59,7 +59,18 @@ def main():
     signal.signal(signal.SIGTERM, signal_handler)
     
     # Create necessary directories
-    from config.settings import DATA_DIR, DOCUMENTS_DIR, CACHE_DIR, EMBEDDINGS_DIR, CELERY_RESULTS_DIR
+    try:
+        from config.settings import DATA_DIR, DOCUMENTS_DIR, CACHE_DIR, EMBEDDINGS_DIR, CELERY_RESULTS_DIR
+    except ImportError:
+        # Fallback configuration if settings file is missing
+        from pathlib import Path
+        PROJECT_ROOT = Path(__file__).parent
+        DATA_DIR = PROJECT_ROOT / "data"
+        DOCUMENTS_DIR = DATA_DIR / "documents"
+        CACHE_DIR = DATA_DIR / "cache"
+        EMBEDDINGS_DIR = PROJECT_ROOT / "embeddings"
+        CELERY_RESULTS_DIR = DATA_DIR / "celery_results"
+        print("⚠️  Using fallback configuration (config/settings.py not found)")
     
     for directory in [DATA_DIR, DOCUMENTS_DIR, CACHE_DIR, EMBEDDINGS_DIR, CELERY_RESULTS_DIR]:
         os.makedirs(directory, exist_ok=True)
