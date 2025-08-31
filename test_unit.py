@@ -624,34 +624,6 @@ Applications of machine learning include image recognition, natural language pro
         print("PASS: Directory structure validation")
         print("PASS: Required files validation")
         print("PASS: System monitoring and health validated")
-    
-    def test_project_structure(self):
-        """Test project structure when components are not available"""
-        # Test directory structure validation
-        project_root = Path(current_dir)
-        expected_dirs = ['api', 'tasks', 'rag', 'cache', 'config', 'data', 'embeddings']
-        
-        available_dirs = []
-        for expected_dir in expected_dirs:
-            dir_path = project_root / expected_dir
-            if dir_path.exists():
-                available_dirs.append(expected_dir)
-        
-        print(f"   ✅ Available directories: {available_dirs}")
-        
-        # Test required files exist
-        required_files = ['main.py', 'requirements.txt', 'README.md']
-        available_files = []
-        
-        for required_file in required_files:
-            file_path = project_root / required_file
-            if file_path.exists():
-                available_files.append(required_file)
-        
-        print(f"   ✅ Available files: {available_files}")
-        
-        # At least main.py should exist
-        self.assertIn('main.py', available_files)
 
 def run_core_tests():
     """Run core tests and provide summary"""
